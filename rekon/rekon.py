@@ -9,11 +9,11 @@ from pkg_resources import resource_filename
 
 class Reconciliation(object):
 
-    def __init__(self, sys1_df=None, sys2_df=None,
+    def __init__(self, system1_data=None, system2_data=None,
                  system_labels=('system1', 'system2'), column_mapping=None, row_mappings=None):
 
-        self.system1_df = sys1_df
-        self.system2_df = sys2_df
+        self.system1_data = system1_data
+        self.system2_data = system2_data
         self.system_labels = system_labels
         self.column_mappings = column_mapping
         self.row_mappings = row_mappings
@@ -24,6 +24,7 @@ class Reconciliation(object):
         self.col_map_norm = None
         self.rec_stats = None
         self.rec_result = None
+        self.rec_result_pretty = None
         self.rec_msg = None
 
     def __repr__(self):
@@ -54,7 +55,7 @@ class Reconciliation(object):
         with sq.connect(db_path) as conn:
 
             # check to make sure that the system data is in correct format
-            if isinstance(self.system1_df, pd.DataFrame) and isinstance(self.system2_df, pd.DataFrame):
+            if isinstance(self.system1_data, pd.DataFrame) and isinstance(self.system2_data, pd.DataFrame):
 
                 # normalise data and get ready to insert into database
                 print('Normalising tables...')
@@ -71,11 +72,11 @@ class Reconciliation(object):
                         self.col_map_norm = {k: i for i, (k, v) in enumerate(self.col_map.items())}
 
                         # transform the system 2 DataFrames to prep for normalisation
-                        self.system2_norm_df = self.system2_df.copy(deep=True)
+                        self.system2_norm_df = self.system2_data.copy(deep=True)
                         self.system2_norm_df.rename(index=str, columns=self.col_map_inv, inplace=True)
 
                         # normalise both sys tem 1 and system 2 DataFrames
-                        self.system1_norm_df = self.system1_df.copy(deep=True)
+                        self.system1_norm_df = self.system1_data.copy(deep=True)
                         self.system1_norm_df.rename(index=str, columns=self.col_map_norm, inplace=True)
                         self.system2_norm_df.rename(index=str, columns=self.col_map_norm, inplace=True)
 
@@ -101,8 +102,21 @@ class Reconciliation(object):
                                 left join system2 s2 on s2.'0' = row_map.system2;
                                 '''.format(col=rec_column)
 
-                        self.rec_result = pd.read_sql(sql, con=conn)
-                        self.rec_msg = 'Reconciliation successful!'
+                        rec_df = pd.read_sql(sql, con=conn)
+
+                        df_headers = [self.system_labels[0],
+                                      self.system_labels[1],
+                                      list(self.col_map.keys())[rec_column],
+                                      list(self.col_map.values())[rec_column],
+                                      'diff']
+
+                        self.rec_result = rec_df.copy(deep=True)
+
+                        self.rec_result_pretty = rec_df.copy(deep=True)
+                        self.rec_result_pretty.columns = df_headers
+                        self.rec_result_pretty.style.bar(subset=['s1s2_value1_diff'],
+                                                         align='mid',
+                                                         color=['#d65f5f', '#5fba7d'])
 
                         return self.rec_result
 
@@ -123,12 +137,22 @@ class Reconciliation(object):
                                         header=None, names=self.system_labels)
 
         # get the system data (will use labels for now but can parse an index)
-        self.system1_df = pd.read_csv(resource_filename('rekon', 'sample_data/system_1.csv'),
-                                      usecols=self.column_mappings.ix[:, 0])
+        self.system1_data = pd.read_csv(resource_filename('rekon', 'sample_data/system_1.csv'),
+                                        usecols=self.column_mappings.ix[:, 0])
 
-        self.system2_df = pd.read_csv(resource_filename('rekon', 'sample_data/system_2.csv'),
-                                      usecols=self.column_mappings.ix[:, 1])
+        self.system2_data = pd.read_csv(resource_filename('rekon', 'sample_data/system_2.csv'),
+                                        usecols=self.column_mappings.ix[:, 1])
+
+        print(self.system_labels)
+        print(self.column_mappings)
+        print(self.row_mappings)
+        print(self.system1_data)
+        print(self.system2_data)
 
 
 if __name__ == '__main__':
     rec = Reconciliation()
+    rec.load_sample_data()
+    rec.reconcile()
+    print(rec.rec_result)
+    print(rec.rec_result_pretty)
