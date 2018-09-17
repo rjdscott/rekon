@@ -9,7 +9,6 @@ import unittest
 from rekon import rekon
 
 
-
 class TestRekon(unittest.TestCase):
     """Tests for `rekon` package."""
 

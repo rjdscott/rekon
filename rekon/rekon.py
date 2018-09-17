@@ -122,7 +122,7 @@ class Reconciliation(object):
         self.row_mappings = pd.read_csv(resource_filename('rekon', 'sample_data/row_mapping.csv'),
                                         header=None, names=self.system_labels)
 
-        # get thegit st system data (will use labels for now but can parse an index)
+        # get the system data (will use labels for now but can parse an index)
         self.system1_df = pd.read_csv(resource_filename('rekon', 'sample_data/system_1.csv'),
                                       usecols=self.column_mappings.ix[:, 0])
 

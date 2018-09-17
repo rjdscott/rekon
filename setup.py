@@ -45,11 +45,14 @@ setup(
     include_package_data=True,
     keywords='rekon',
     name='rekon',
-    packages=find_packages(include=['rekon']),
+    packages=find_packages(),
+    package_data={
+        'rekon': ['sample_data/']
+    },
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/rjdscott/rekon',
     version='0.1.2',
-    zip_safe=False,
+    zip_safe=True,
 )
