@@ -4,6 +4,6 @@
 
 __author__ = """Rob Scott"""
 __email__ = 'rob@rjdscott.com'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 from rekon.rekon import *
