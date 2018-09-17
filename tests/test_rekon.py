@@ -14,6 +14,7 @@ class TestRekon(unittest.TestCase):
 
     def setUp(self):
         """setup test fixtures, if any."""
+        assert rekon.__name__ == 'rekon.rekon'
 
     def tearDown(self):
         """Tear down test fixtures, if any."""
