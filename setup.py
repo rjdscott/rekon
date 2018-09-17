@@ -47,7 +47,7 @@ setup(
     name='rekon',
     packages=find_packages(),
     package_data={
-        'rekon': ['sample_data/']
+        'rekon': ['sample_data/*.csv']
     },
     setup_requires=setup_requirements,
     test_suite='tests',
