@@ -116,20 +116,19 @@ class Reconciliation(object):
         self.system_labels = ['system1', 'system2']
 
         # get the mapping for rows and cols
-        self.column_mappings = pd.read_csv(resource_filename('rekon','sample_data/col_mapping.csv'),
+        self.column_mappings = pd.read_csv(resource_filename('rekon', 'sample_data/col_mapping.csv'),
                                            header=None, names=self.system_labels)
 
-        self.row_mappings = pd.read_csv(resource_filename('rekon','sample_data/row_mapping.csv'),
+        self.row_mappings = pd.read_csv(resource_filename('rekon', 'sample_data/row_mapping.csv'),
                                         header=None, names=self.system_labels)
 
-        # get the system data (will use labels for now but can parse an index)
-        self.system1_df = pd.read_csv(resource_filename('rekon','sample_data/system_1.csv'),
+        # get thegit st system data (will use labels for now but can parse an index)
+        self.system1_df = pd.read_csv(resource_filename('rekon', 'sample_data/system_1.csv'),
                                       usecols=self.column_mappings.ix[:, 0])
 
-        self.system2_df = pd.read_csv(resource_filename('rekon','sample_data/system_2.csv'),
+        self.system2_df = pd.read_csv(resource_filename('rekon', 'sample_data/system_2.csv'),
                                       usecols=self.column_mappings.ix[:, 1])
 
 
 if __name__ == '__main__':
     rec = Reconciliation()
-

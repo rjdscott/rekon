@@ -13,9 +13,9 @@ with open('HISTORY.rst') as history_file:
 
 requirements = ['Click>=6.0', 'pandas']
 
-setup_requirements = [ ]
+setup_requirements = []
 
-test_requirements = [ ]
+test_requirements = []
 
 setup(
     author="Rob Scott",
@@ -43,14 +43,6 @@ setup(
     license="MIT license",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
-    package_data={
-        # And include any *.dat files found in the 'data' subdirectory
-        # of the 'rekon' package, also:
-        'system1': ['docs/sample_data/system1.csv'],
-        'system2': ['docs/sample_data/system2.csv'],
-        'col_map': ['docs/sample_data/column_mapping.csv'],
-        'row_map': ['docs/sample_data/row_mapping.csv'],
-    },
     keywords='rekon',
     name='rekon',
     packages=find_packages(include=['rekon']),

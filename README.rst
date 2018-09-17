@@ -23,15 +23,21 @@ rekon provides a suite of reconciliation tools for operations and finance
 * Documentation: https://rekon.readthedocs.io.
 
 
-Features
---------
 
-* TODO
+How to use this library
+----------------------
 
-Credits
--------
+Set-up virtualenv and import `rekon`::
 
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+    pip install --user virtualenv
+    virtualenv .env
+    pip install rekon
 
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+Reconciliation inputs::
+
+    # instantiate reconciliation class object
+    rec = Reconciliation(sys1_df, sys2_df, system_labels, col_mapping, row_mapping)
+
+    # to run a reconciliation, call the reconcile method
+    rec.reconcile(rec_col=1, sqlite_db=":memory:")
+
