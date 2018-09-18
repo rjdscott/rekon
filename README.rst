@@ -27,16 +27,41 @@ rekon provides a suite of reconciliation tools for operations and finance
 How to use this library
 ----------------------
 
-Set-up virtualenv and import `rekon`::
+Set-up virtualenv and import rekon
+
+.. code-block:: console
 
     $ pip install --user virtualenv
     $ virtualenv .env
     $ pip install rekon
 
-Reconciliation inputs::
+Reconciliation inputs:
 
-    # instantiate reconciliation class object
-    rec = Reconciliation(sys1_df, sys2_df, system_labels, col_mapping, row_mapping)
+.. code-block:: python
 
-    # to run a reconciliation, call the reconcile method
+    # import rekon library
+    from rekon import rekon
+
+    # instantiate an reconciliation instance
+    rec = rekon.Reconciliation()
+
+    # load sample data from package
+    rec.load_sample_data()
+
+    # run reconciliation on first column in col mapping and use sqlite db in memory
     rec.reconcile(rec_col=1, sqlite_db=":memory:")
+
+    # view results (in pretty format)
+    rec.rec_results_pretty
+
+    # to output results to a zip and open file location
+    rec.output_report(output_dir='~/Desktop/EXAMPLE_OUTPUT',
+                      file_name='rec-file',
+                      output_format='zip',
+                      open_file=True)
+
+    # to output results to a spreadsheet (i.e. 'xlsx') and open file location
+    rec.output_report(output_dir='~/Desktop/EXAMPLE_OUTPUT',
+                      file_name='rec-file',
+                      output_format='xlsx',
+                      open_file=True)
