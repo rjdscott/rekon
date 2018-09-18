@@ -114,11 +114,11 @@ class Reconciliation(object):
 
                         self.rec_result_pretty = rec_df.copy(deep=True)
                         self.rec_result_pretty.columns = df_headers
-                        self.rec_result_pretty.style.bar(subset=['s1s2_value1_diff'],
+                        self.rec_result_pretty.style.bar(subset=['diff'],
                                                          align='mid',
                                                          color=['#d65f5f', '#5fba7d'])
 
-                        return self.rec_result
+                        return self.rec_result_pretty
 
             else:
 
@@ -143,11 +143,48 @@ class Reconciliation(object):
         self.system2_data = pd.read_csv(resource_filename('rekon', 'sample_data/system_2.csv'),
                                         usecols=self.column_mappings.ix[:, 1])
 
-        print(self.system_labels)
         print(self.column_mappings)
         print(self.row_mappings)
         print(self.system1_data)
         print(self.system2_data)
+
+    def generate_rec_stats(self):
+        '''
+        generates reconciliation statistics based on prior reconciliation
+        :return: json with statistics
+        '''
+        num_rows = len(self.rec_result)
+        num_breaks = None
+        left_matches = None
+        left_misses = None
+        right_matches = None
+        right_misses = None
+        pass
+
+    def update_row_mapping(self, row_mapping):
+        '''
+        allows user to update row mappings
+        :param row_mapping: DataFrame for both system 1 and system 2
+        :return: string containing success message
+        '''
+        pass
+
+    def update_col_mapping(self, col_mapping):
+        '''
+        allows user to update column mappings
+        :param col_mapping: DataFrame for both system 1 and system 2
+        :return: string containing success message
+        '''
+        pass
+
+    def output_rec_report(self, output_dir=None, output_format='xlsx'):
+        '''
+        outputs contents of reconciliation class to either xlsx, csv's or zip containing csv's
+        :param output_dir: string for path to folder
+        :param output_format: string: csv, xls, xlsx, zip
+        :return: success message
+        '''
+        pass
 
 
 if __name__ == '__main__':
