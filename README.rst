@@ -25,7 +25,7 @@ rekon provides a suite of reconciliation tools for operations and finance
 
 
 How to use this library
-----------------------
+--------------------------
 
 Set-up virtualenv and import rekon
 
