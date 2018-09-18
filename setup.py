@@ -11,7 +11,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', 'pandas']
+requirements = ['Click>=6.0', 'pandas', 'Jinja2']
 
 setup_requirements = []
 
@@ -47,7 +47,7 @@ setup(
     name='rekon',
     packages=find_packages(),
     package_data={
-        'rekon': ['sample_data/*.csv']
+        'rekon': ['sample_data/*.csv'],
     },
     setup_requires=setup_requirements,
     test_suite='tests',

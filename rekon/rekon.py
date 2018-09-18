@@ -5,6 +5,7 @@ import sqlite3 as sq
 import pandas as pd
 import os
 from pkg_resources import resource_filename
+import json
 
 
 class Reconciliation(object):
@@ -22,13 +23,11 @@ class Reconciliation(object):
         self.col_map = None
         self.col_map_inv = None
         self.col_map_norm = None
-        self.rec_stats = None
+        self.rec_stats_dict = None
+        self.rec_stats_json = None
         self.rec_result = None
         self.rec_result_pretty = None
         self.rec_msg = None
-
-    def __repr__(self):
-        return self.rec_msg
 
     def reconcile(self, rec_column=1, sqlite_db=":memory:"):
         '''
@@ -58,8 +57,6 @@ class Reconciliation(object):
             if isinstance(self.system1_data, pd.DataFrame) and isinstance(self.system2_data, pd.DataFrame):
 
                 # normalise data and get ready to insert into database
-                print('Normalising tables...')
-
                 if self.column_mappings is None:
                     raise ValueError('No column mappings available, please try again.')
 
@@ -83,11 +80,9 @@ class Reconciliation(object):
                         # add the data to sql database
                         self.system1_norm_df.to_sql(self.system_labels[0], con=conn, if_exists='replace', index=None)
                         self.system2_norm_df.to_sql(self.system_labels[1], con=conn, if_exists='replace', index=None)
-                        print('Normalised tables inserted to database...')
 
                         self.row_mappings.to_sql('row_map', con=conn, if_exists='replace', index=None)
                         self.column_mappings.to_sql('col_map', con=conn, if_exists='replace', index=None)
-                        print('Mappings added to database..')
 
                         # construct the sql for the reconciliation
                         sql = '''
@@ -114,17 +109,17 @@ class Reconciliation(object):
 
                         self.rec_result_pretty = rec_df.copy(deep=True)
                         self.rec_result_pretty.columns = df_headers
-                        self.rec_result_pretty.style.bar(subset=['s1s2_value1_diff'],
+                        self.rec_result_pretty.style.bar(subset=['diff'],
                                                          align='mid',
                                                          color=['#d65f5f', '#5fba7d'])
 
-                        return self.rec_result
+                        return self.rec_result_pretty
 
             else:
 
                 raise ValueError("System data is not a Pandas DataFrame format, please try again.")
 
-    def load_sample_data(self):
+    def load_sample_data(self, echo=None):
 
         # get the system names
         self.system_labels = ['system1', 'system2']
@@ -143,11 +138,64 @@ class Reconciliation(object):
         self.system2_data = pd.read_csv(resource_filename('rekon', 'sample_data/system_2.csv'),
                                         usecols=self.column_mappings.ix[:, 1])
 
-        print(self.system_labels)
-        print(self.column_mappings)
-        print(self.row_mappings)
-        print(self.system1_data)
-        print(self.system2_data)
+        if echo is not None:
+            print(self.column_mappings)
+            print(self.row_mappings)
+            print(self.system1_data)
+            print(self.system2_data)
+
+        else:
+            print("Sample data loaded...")
+
+    def rec_stats(self, format='dict'):
+        '''
+        generates reconciliation statistics based on prior reconciliation
+        :return: json with statistics
+        '''
+        num_rows = len(self.rec_result_pretty)
+        num_breaks = self.rec_result_pretty['diff'].astype(bool).sum(axis=0)
+        system1_misses = self.rec_result_pretty.iloc[:, 0].isna().sum()
+        system2_misses = self.rec_result_pretty.iloc[:, 1].isna().sum()
+
+        # create string representation of dictionary for stats storing as string
+
+        self.rec_stats_dict = {
+            'num rows': num_rows,
+            'num breaks': num_breaks,
+            str(self.system_labels[0]): system1_misses,
+            str(self.system_labels[1]): system2_misses,
+        }
+        self.rec_stats_json = json.dumps({i: str(j) for i, j in self.rec_stats_dict.items()}, sort_keys=True, indent=4)
+
+        if format == 'dict':
+            return self.rec_stats_dict
+        else:
+            return self.rec_stats_json
+
+    def update_row_mapping(self, row_mapping):
+        '''
+        allows user to update row mappings
+        :param row_mapping: DataFrame for both system 1 and system 2
+        :return: string containing success message
+        '''
+        pass
+
+    def update_col_mapping(self, col_mapping):
+        '''
+        allows user to update column mappings
+        :param col_mapping: DataFrame for both system 1 and system 2
+        :return: string containing success message
+        '''
+        pass
+
+    def output_rec_report(self, output_dir=None, output_format='xlsx'):
+        '''
+        outputs contents of reconciliation class to either xlsx, csv's or zip containing csv's
+        :param output_dir: string for path to folder
+        :param output_format: string: csv, xls, xlsx, zip
+        :return: success message
+        '''
+        pass
 
 
 if __name__ == '__main__':
