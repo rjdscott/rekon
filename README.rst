@@ -29,9 +29,9 @@ How to use this library
 
 Set-up virtualenv and import `rekon`::
 
-    pip install --user virtualenv
-    virtualenv .env
-    pip install rekon
+    $ pip install --user virtualenv
+    $ virtualenv .env
+    $ pip install rekon
 
 Reconciliation inputs::
 
@@ -40,4 +40,3 @@ Reconciliation inputs::
 
     # to run a reconciliation, call the reconcile method
     rec.reconcile(rec_col=1, sqlite_db=":memory:")
-
