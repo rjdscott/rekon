@@ -9,5 +9,6 @@ Sphinx==1.7.1
 twine==1.10.0
 numpy==1.15.1
 pandas==0.23.4
+Jinja2
 
 
