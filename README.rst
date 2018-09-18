@@ -21,6 +21,7 @@ rekon provides a suite of reconciliation tools for operations and finance
 
 * Free software: MIT license
 * Documentation: https://rekon.readthedocs.io.
+* PyPi: https://pypi.org/project/rekon
 
 
 
