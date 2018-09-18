@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
 """Main module."""
+from pkg_resources import resource_filename
+from datetime import datetime
 import sqlite3 as sq
 import pandas as pd
-import os
-from pkg_resources import resource_filename
+import zipfile
 import json
+import os
+import subprocess
 
 
 class Reconciliation(object):
@@ -193,14 +196,62 @@ class Reconciliation(object):
         else:
             raise ValueError("row_mapping is not a DataFrame, please try again.")
 
-    def output_rec_report(self, output_dir=None, output_format='xlsx'):
+    def output_report(self, output_dir=None, file_name=None, output_format='xlsx', open_file=False):
         '''
         outputs contents of reconciliation class to either xlsx, csv's or zip containing csv's
-        :param output_dir: string for path to folder
-        :param output_format: string: csv, xls, xlsx, zip
+        :param file_name: str:
+        :param output_dir: str: for path to folder
+        :param output_format: str: csv, xls, xlsx, zip
         :return: success message
         '''
-        pass
+
+        # need to make sure the output dur's final char is a '/'
+        # todo: how to make this work for windows?
+        # todo: how to set parameter to check if file exists and handle properly
+
+        # tidy up filepath
+        if '~' in output_dir[0]:
+            output_dir = os.path.expanduser('~/') + output_dir[1:]
+        if '.' in output_dir:
+            output_dir = '{}/'.format(output_dir[:output_dir.find('.')])
+        elif output_dir[-1] != '/':
+            output_dir += '/'
+
+        if file_name is None:
+            file_name = 'rekon-reconciliation-output-{}'.format(datetime.now().strftime('%Y%m%d%H%M'))
+
+        output_path_full = '{dir}{file}'.format(dir=output_dir, file=file_name)
+
+        if output_format == 'xlsx':
+            # create one excel cheet and write to tabs
+            # ref: https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.to_excel.html
+
+            output_path_file = '{}.xlsx'.format(output_path_full)
+            writer = pd.ExcelWriter(output_path_file)
+            self.rec_result_pretty.to_excel(writer, sheet_name='rec_report', index=False)
+            self.system1_data.to_excel(writer, sheet_name='system1_data', index=False)
+            self.system2_data.to_excel(writer, sheet_name='system2_data', index=False)
+            self.column_mappings.to_excel(writer, sheet_name='col_map', index=False)
+            self.row_mappings.to_excel(writer, sheet_name='row_map', index=False)
+            writer.save()
+
+        elif output_format == 'zip':
+            # output as csv and zip
+            # ref: https://stackoverflow.com/questions/41979033/create-a-zip-with-2-csv-on-it
+
+            output_path_file = '{}.zip'.format(output_path_full)
+            with zipfile.ZipFile(output_path_file, 'w') as csv_zip:
+                csv_zip.writestr("rec_result.csv", self.rec_result_pretty.to_csv(index=None))
+                csv_zip.writestr("system1_data.csv", self.system1_data.to_csv(index=None))
+                csv_zip.writestr("system2_data.csv", self.system2_data.to_csv(index=None))
+                csv_zip.writestr("col_map.csv", self.column_mappings.to_csv(index=None))
+                csv_zip.writestr("row_map.csv", self.row_mappings.to_csv(index=None))
+        else:
+            raise ValueError("{} format not compatible... Please use 'xlsx', 'csv', or 'zip'")
+
+        # https://stackoverflow.com/questions/3520493/python-show-in-finder
+        if open_file and os.name == 'posix':
+            subprocess.call(['open', '-R', output_path_file])
 
 
 if __name__ == '__main__':
