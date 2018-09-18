@@ -27,16 +27,17 @@ class Reconciliation(object):
         self.rec_stats_json = None
         self.rec_result = None
         self.rec_result_pretty = None
-        self.rec_msg = None
 
-    def reconcile(self, rec_column=1, sqlite_db=":memory:"):
+    def reconcile(self, rec_col=1, sqlite_db=":memory:", echo=False):
         '''
         This function performs the reconciliation of two data sets
             - it uses sqlite3 and pandas DataFrames for simplicity
             - it also assumes that all the data is provided in raw format but in DataFrames
 
-        :param rec_column: int or str: Takes labels or integers corresponding to system1 labels
+
+        :param rec_col: int or str: Takes labels or integers corresponding to system1 labels
         :param sqlite_db: string: the location of the database, can be file or memory
+        :param echo: boolean: returns the result output after running method
         :return: DataFrame of reconciliation data
         '''
 
@@ -95,14 +96,14 @@ class Reconciliation(object):
                                 from system1 s1
                                 left join row_map on s1.'0' = row_map.system1
                                 left join system2 s2 on s2.'0' = row_map.system2;
-                                '''.format(col=rec_column)
+                                '''.format(col=rec_col)
 
                         rec_df = pd.read_sql(sql, con=conn)
 
                         df_headers = [self.system_labels[0],
                                       self.system_labels[1],
-                                      list(self.col_map.keys())[rec_column],
-                                      list(self.col_map.values())[rec_column],
+                                      list(self.col_map.keys())[rec_col],
+                                      list(self.col_map.values())[rec_col],
                                       'diff']
 
                         self.rec_result = rec_df.copy(deep=True)
@@ -112,14 +113,14 @@ class Reconciliation(object):
                         self.rec_result_pretty.style.bar(subset=['diff'],
                                                          align='mid',
                                                          color=['#d65f5f', '#5fba7d'])
-
-                        return self.rec_result_pretty
+                        if echo:
+                            return self.rec_result_pretty
 
             else:
 
                 raise ValueError("System data is not a Pandas DataFrame format, please try again.")
 
-    def load_sample_data(self, echo=None):
+    def load_sample_data(self, echo=False):
 
         # get the system names
         self.system_labels = ['system1', 'system2']
@@ -138,13 +139,11 @@ class Reconciliation(object):
         self.system2_data = pd.read_csv(resource_filename('rekon', 'sample_data/system_2.csv'),
                                         usecols=self.column_mappings.ix[:, 1])
 
-        if echo is not None:
+        if echo:
             print(self.column_mappings)
             print(self.row_mappings)
             print(self.system1_data)
             print(self.system2_data)
-
-        else:
             print("Sample data loaded...")
 
     def rec_stats(self, format='dict'):
@@ -178,7 +177,10 @@ class Reconciliation(object):
         :param row_mapping: DataFrame for both system 1 and system 2
         :return: string containing success message
         '''
-        pass
+        if isinstance(row_mapping, pd.DataFrame):
+            self.row_mappings = row_mapping
+        else:
+            raise ValueError("row_mapping is not a DataFrame, please try again.")
 
     def update_col_mapping(self, col_mapping):
         '''
@@ -186,7 +188,10 @@ class Reconciliation(object):
         :param col_mapping: DataFrame for both system 1 and system 2
         :return: string containing success message
         '''
-        pass
+        if isinstance(col_mapping, pd.DataFrame):
+            self.row_mappings = col_mapping
+        else:
+            raise ValueError("row_mapping is not a DataFrame, please try again.")
 
     def output_rec_report(self, output_dir=None, output_format='xlsx'):
         '''
